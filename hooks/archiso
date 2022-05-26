@@ -56,14 +56,14 @@ _mnt_overlayfs() {
 
 # args: /path/to/image_file
 _open_luks() {
-  local img="${1}"
-  local img_fullname="${img##*/}"
-  local map="${img_fullname}.map"
-  is_luks=$(blkid -s TYPE -o value "${img}")
-  if [ "${is_luks}" = "crypto_LUKS" ]; then
-    cryptsetup luksOpen "${img}" "${map}"
-    dev="/dev/mapper/${map}"
-  fi
+    local img="${1}"
+    local img_fullname="${img##*/}"
+    local map="${img_fullname}.map"
+    is_luks=$(blkid -s TYPE -o value "${img}")
+    if [ "${is_luks}" = "crypto_LUKS" ]; then
+        cryptsetup luksOpen "${img}" "${map}"
+        dev="/dev/mapper/${map}"
+    fi
 }
 
 # args: /path/to/image_file, mountpoint
