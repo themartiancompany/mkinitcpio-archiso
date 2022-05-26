@@ -54,6 +54,18 @@ _mnt_overlayfs() {
         airootfs "${newroot}${mnt}"
 }
 
+# args: /path/to/image_file
+_open_luks() {
+  local img="${1}"
+  local img_fullname="${img##*/}"
+  local map="${img_fullname}.map"
+  is_luks=$(blkid -s TYPE -o value "${img}")
+  if [ "${is_luks}" = "crypto_LUKS" ]; then
+    cryptsetup luksOpen "${img}" "${map}"
+    dev="/dev/mapper/${map}"
+  fi
+}
+
 # args: /path/to/image_file, mountpoint
 _mnt_fs() {
     local img="${1}"
@@ -104,6 +116,8 @@ _mnt_dev() {
         echo "   You can try to fix the problem manually, log out when you are finished"
         launch_interactive_shell
     done
+
+    _open_luks "${dev}"
 
     if mount --mkdir -o "${opts}" "${flg}" "${dev}" "${mnt}"; then
         msg ":: Device '${dev}' mounted successfully."
