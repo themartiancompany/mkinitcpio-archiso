@@ -52,7 +52,7 @@ build() {
 }
 
 help() {
-    cat << HELPEOF
+    cat <<HELPEOF
 This hook allows for an encrypted root device.
 HELPEOF
 }
