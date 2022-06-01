@@ -53,6 +53,6 @@ build() {
 
 help() {
     cat <<HELPEOF
-This hook mounts an archiso image.
+  This hook loads the necessary modules for boot.
 HELPEOF
 }
