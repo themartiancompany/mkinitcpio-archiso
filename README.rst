@@ -16,6 +16,7 @@ The following packages need to be installed to be able to use mkinitcpio-archiso
 * bash
 * ca-certificates-utils (for PXE over HTTP)
 * coreutils
+* cryptsetup (for LUKS)
 * curl (for PXE over HTTP)
 * device-mapper
 * gnupg
