@@ -61,7 +61,7 @@ _open_luks() {
     local map="${img_fullname}.map"
     local key="/run/archiso/keys/${img_fullname}.key"
     local key_opt=""
-    is_luks=$(blkid -s TYPE -o value "${img}")
+    local is_luks=$(blkid -s TYPE -o value "${img}")
 
     if [ -f "${key}" ]; then
         key_opt=" --key-file ${key}"
