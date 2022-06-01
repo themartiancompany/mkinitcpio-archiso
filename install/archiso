@@ -53,8 +53,6 @@ build() {
 
 help() {
     cat <<HELPEOF
-This hook allows for an encrypted root device.
+This hook mounts an archiso image.
 HELPEOF
 }
-
-# vim: set ft=sh ts=4 sw=4 et:
