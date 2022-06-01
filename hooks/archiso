@@ -197,7 +197,7 @@ archiso_mount_handler() {
     fi
 
     if [ -f "${archisokeysdevice}" ]; then
-	    _mnt_dev "${archisokeysdevice}" "/run/archiso/keys" "-r" "defaults"
+	_mnt_dev "${archisokeysdevice}" "/run/archiso/keys" "-r" "defaults"
     fi
 
     # shellcheck disable=SC2154
