@@ -57,6 +57,7 @@ _mnt_overlayfs() {
 # args: /path/to/image_file
 _open_luks() {
     local img="${1}"
+    local is_luks
     local img_fullname="${img##*/}"
     local map="${img_fullname}.map"
     local key="/run/archiso/keys/${img_fullname}.key"
