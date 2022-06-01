@@ -59,9 +59,16 @@ _open_luks() {
     local img="${1}"
     local img_fullname="${img##*/}"
     local map="${img_fullname}.map"
+    local key="/run/archiso/keys/${img_fullname}.key"
+    local key_opt=""
     is_luks=$(blkid -s TYPE -o value "${img}")
+
+    if [ -f "${key}" ]; then
+        key_opt=" --key-file ${key}"
+    fi
+
     if [ "${is_luks}" = "crypto_LUKS" ]; then
-        cryptsetup luksOpen "${img}" "${map}"
+        cryptsetup luksOpen "${img}" "${map}${key_opt}"
         dev="/dev/mapper/${map}"
     fi
 }
@@ -156,6 +163,7 @@ run_hook() {
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     [ -z "${archisodevice}" ] && archisodevice="/dev/disk/by-label/${archisolabel}"
+    [ -z "${archisokeysdevice}" ] && archisokeysdevice="/dev/disk/by-label/${archisolabel}_keys"
     [ -z "${cow_spacesize}" ] && cow_spacesize="256M"
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
@@ -185,6 +193,10 @@ archiso_mount_handler() {
 
     if ! mountpoint -q "/run/archiso/bootmnt"; then
         _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r" "defaults"
+    fi
+
+    if [ -f "${archisokeysdevice}" ]; then
+	    _mnt_dev "${archisokeysdevice}" "/run/archiso/keys" "-r" "defaults"
     fi
 
     # shellcheck disable=SC2154
