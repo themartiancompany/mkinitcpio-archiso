@@ -202,7 +202,7 @@ archiso_mount_handler() {
             keys_img="/run/archiso/keysmnt/keys.sfs"
         elif [ -f "/run/archiso/keysmnt/keys.erofs" ]; then
             keys_img="/run/archiso/keysmnt/keys.erofs"
-	fi
+        fi
 
         _mnt_dev "${keys_img}" "/run/archiso/keys" "-r" "defaults"
     fi
