@@ -169,6 +169,7 @@ archiso_mount_handler() {
     local newroot="${1}"
     local sigfile fs_img
 
+    # shellcheck disable=SC2154
     msg ":: Root device is ${root}"
     if ! mountpoint -q "/run/archiso/bootmnt"; then
         _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r" "defaults"
