@@ -136,7 +136,7 @@ _verify_signature() {
 
 _archisodevice() {
     # shellcheck disable=SC2154
-    if [ -e "${root}" ]; then 
+    if [ -e "${root}" ]; then
         archisodevice="/run/cryptdev"
         bootmnt_opts="bind"
     else
