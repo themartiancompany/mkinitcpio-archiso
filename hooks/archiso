@@ -244,9 +244,9 @@ archiso_mount_handler() {
 
     # shellcheck disable=SC2154
     if [ -f "${airootfs}" ]; then 
-	fs_img="${airootfs}"
+        fs_img="${airootfs}"
     elif [ -f "${root}" ]; then
-	fs_img="${root}"
+        fs_img="${root}"
     else
         echo "ERROR: no root file system image found"
         launch_interactive_shell
