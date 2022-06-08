@@ -174,7 +174,7 @@ archiso_mount_handler() {
     # shellcheck disable=SC2154
     if [ -f "${root}" ]; then
         bootmnt="/run/cryptdev"
-	bootmnt_opts="-r bind"
+        bootmnt_opts="-r bind"
     fi
 
     if ! mountpoint -q "${bootmnt}"; then
