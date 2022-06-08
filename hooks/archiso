@@ -168,17 +168,18 @@ run_hook() {
 archiso_mount_handler() {
     local newroot="${1}"
     local airootfs sigfile fs_img
-    local bootmnt="/run/archiso/bootmnt"
-    local bootmnt_opts="-r defaults"
+    local bootmnt_opts="defaults"
+    local bootmnt_flg="-r"
+    bootmnt="/run/archiso/bootmnt"
 
     # shellcheck disable=SC2154
     if [ -f "${root}" ]; then
         bootmnt="/run/cryptdev"
-        bootmnt_opts="-r bind"
+        bootmnt_flg="bind"
     fi
 
     if ! mountpoint -q "${bootmnt}"; then
-        _mnt_dev "${archisodevice}" "${bootmnt}" "${bootmnt_opts}"
+        _mnt_dev "${archisodevice}" "${bootmnt}" "${bootmnt_flg}" "${bootmnt_opts}"
     fi
 
     local airootfs_dir="${bootmnt}/${archisobasedir}/${arch}"
