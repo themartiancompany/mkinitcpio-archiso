@@ -188,7 +188,7 @@ archiso_mount_handler() {
     elif [ -f "${airootfs_dir}/airootfs.erofs" ]; then
         airootfs="${airootfs_dir}/airootfs.erofs"
     fi
- 
+
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     if [ "${checksum}" = "y" ]; then
