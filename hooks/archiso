@@ -176,6 +176,7 @@ archiso_mount_handler() {
     if [ -e "${root}" ]; then
         archisodevice="/run/cryptdev"
         bootmnt_flg="bind"
+	msg ":: New archisodevice: ${archisodevice}"
     fi
 
     if ! mountpoint -q "${bootmnt}"; then
