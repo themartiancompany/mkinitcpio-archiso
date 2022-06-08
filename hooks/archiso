@@ -174,7 +174,7 @@ archiso_mount_handler() {
 
     # shellcheck disable=SC2154
     if [ -f "${root}" ]; then
-        bootmnt="/run/cryptdev"
+        archisodevice="/run/cryptdev"
         bootmnt_flg="bind"
     fi
 
