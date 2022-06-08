@@ -241,9 +241,9 @@ archiso_mount_handler() {
     mkdir -p "/run/archiso/cowspace/${cow_directory}"
     chmod 0700 "/run/archiso/cowspace/${cow_directory}"
 
+    # shellcheck disable=SC2154
     if [ -f "${airootfs}" ]; then 
 	fs_img="${airootfs}"
-    # shellcheck disable=SC2154
     elif [ -f "${root}" ]; then
 	fs_img="${root}"
     else
