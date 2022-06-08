@@ -54,26 +54,6 @@ _mnt_overlayfs() {
         airootfs "${newroot}${mnt}"
 }
 
-# args: /path/to/image_file
-_open_luks() {
-    local img="${1}"
-    local is_luks
-    local img_fullname="${img##*/}"
-    local map="${img_fullname}.map"
-    local key="/run/archiso/keys/${img_fullname}.key"
-    local key_opt=""
-    is_luks=$(blkid -s TYPE -o value "${img}")
-
-    if [ -f "${key}" ]; then
-        key_opt=" --key-file ${key}"
-    fi
-
-    if [ "${is_luks}" = "crypto_LUKS" ]; then
-        cryptsetup luksOpen "${img}" "${map}${key_opt}"
-        dev="/dev/mapper/${map}"
-    fi
-}
-
 # args: /path/to/image_file, mountpoint
 _mnt_fs() {
     local img="${1}"
@@ -125,8 +105,6 @@ _mnt_dev() {
         launch_interactive_shell
     done
 
-    _open_luks "${dev}"
-
     if mount --mkdir -o "${opts}" "${flg}" "${dev}" "${mnt}"; then
         msg ":: Device '${dev}' mounted successfully."
     else
@@ -164,7 +142,6 @@ run_hook() {
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     [ -z "${archisodevice}" ] && archisodevice="/dev/disk/by-label/${archisolabel}"
-    [ -z "${archisokeysdevice}" ] && archisokeysdevice="/dev/disk/by-label/${archisolabel}_keys"
     [ -z "${cow_spacesize}" ] && cow_spacesize="256M"
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
@@ -192,19 +169,9 @@ archiso_mount_handler() {
     local newroot="${1}"
     local sigfile fs_img
 
+    msg ":: Root device is ${root}"
     if ! mountpoint -q "/run/archiso/bootmnt"; then
         _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r" "defaults"
-    fi
-
-    if [ -f "${archisokeysdevice}" ]; then
-        _mnt_dev "${archisokeysdevice}" "/run/archiso/keysmnt" "-r" "defaults"
-        if [ -f "/run/archiso/keysmnt/keys.sfs" ]; then
-            keys_img="/run/archiso/keysmnt/keys.sfs"
-        elif [ -f "/run/archiso/keysmnt/keys.erofs" ]; then
-            keys_img="/run/archiso/keysmnt/keys.erofs"
-        fi
-
-        _mnt_dev "${keys_img}" "/run/archiso/keys" "-r" "defaults"
     fi
 
     # shellcheck disable=SC2154
