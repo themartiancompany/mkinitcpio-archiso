@@ -134,6 +134,17 @@ _verify_signature() {
     return ${_status}
 }
 
+_archisodevice() {
+    # shellcheck disable=SC2154
+    if [ -e "${root}" ]; then 
+        archisodevice="/run/cryptdev"
+        bootmnt_opts="bind"
+    else
+        archisodevice="/dev/disk/by-label/${archisolabel}"
+        bootmnt_opts="defaults"
+    fi
+}
+
 run_hook() {
     [ -z "${arch}" ] && arch="$(uname -m)"
     [ -z "${copytoram_size}" ] && copytoram_size="75%"
@@ -141,7 +152,7 @@ run_hook() {
     [ -z "${dm_snap_prefix}" ] && dm_snap_prefix="arch"
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
-    [ -z "${archisodevice}" ] && archisodevice="/dev/disk/by-label/${archisolabel}"
+    [ -z "${archisodevice}" ] && _archisodevice
     [ -z "${cow_spacesize}" ] && cow_spacesize="256M"
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
@@ -168,19 +179,10 @@ run_hook() {
 archiso_mount_handler() {
     local newroot="${1}"
     local airootfs sigfile fs_img
-    local bootmnt_opts="defaults"
-    local bootmnt_flg="-r"
     bootmnt="/run/archiso/bootmnt"
 
-    # shellcheck disable=SC2154
-    if [ -e "${root}" ]; then
-        archisodevice="/run/cryptdev"
-        bootmnt_flg="bind"
-	msg ":: New archisodevice: ${archisodevice}"
-    fi
-
     if ! mountpoint -q "${bootmnt}"; then
-        _mnt_dev "${archisodevice}" "${bootmnt}" "${bootmnt_flg}" "${bootmnt_opts}"
+        _mnt_dev "${archisodevice}" "${bootmnt}" "-r" "${bootmnt_opts}"
     fi
 
     local airootfs_dir="${bootmnt}/${archisobasedir}/${arch}"
