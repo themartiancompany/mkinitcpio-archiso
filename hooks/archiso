@@ -117,7 +117,7 @@ _mnt_dev() {
 
 _verify_checksum() {
     local _status
-    cd "/run/archiso/bootmnt/${archisobasedir}/${arch}" || exit 1
+    cd "${airootfs_dir}" || exit 1
     sha512sum -c airootfs.sha512 >/tmp/checksum.log 2>&1
     _status=$?
     cd -- "${OLDPWD}" || exit 1
@@ -127,7 +127,7 @@ _verify_checksum() {
 _verify_signature() {
     local _status
     local sigfile="${1}"
-    cd "/run/archiso/bootmnt/${archisobasedir}/${arch}" || exit 1
+    cd "${airootfs_dir}" || exit 1
     gpg --homedir /gpg --status-fd 1 --verify "${sigfile}" 2>/dev/null | grep -E '^\[GNUPG:\] GOODSIG'
     _status=$?
     cd -- "${OLDPWD}" || exit 1
@@ -167,18 +167,31 @@ run_hook() {
 # args: /path/to/newroot
 archiso_mount_handler() {
     local newroot="${1}"
-    local sigfile fs_img
+    local airootfs sigfile fs_img
+    local bootmnt="/run/archiso/bootmnt"
+    local bootmnt_opts="-r defaults"
 
     # shellcheck disable=SC2154
-    msg ":: Root device is ${root}"
-    if ! mountpoint -q "/run/archiso/bootmnt"; then
-        _mnt_dev "${archisodevice}" "/run/archiso/bootmnt" "-r" "defaults"
+    if [ -f "${root}" ]; then
+        bootmnt="/run/cryptdev"
+	bootmnt_opts="-r bind"
     fi
 
+    if ! mountpoint -q "${bootmnt}"; then
+        _mnt_dev "${archisodevice}" "${bootmnt}" "${bootmnt_opts}"
+    fi
+
+    local airootfs_dir="${bootmnt}/${archisobasedir}/${arch}"
+
+    if [ -f "${airootfs_dir}/airootfs.sfs" ]; then
+        airootfs="${airootfs_dir}/airootfs.sfs"
+    elif [ -f "${airootfs_dir}/airootfs.erofs" ]; then
+        airootfs="${airootfs_dir}/airootfs.erofs"
+ 
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     if [ "${checksum}" = "y" ]; then
-        if [ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sha512" ]; then
+        if [ -f "${airootfs%.*}.sha512" ]; then
             msg ":: Self-test requested, please wait..."
             if _verify_checksum; then
                 msg "Checksum is OK, continue booting."
@@ -196,11 +209,7 @@ archiso_mount_handler() {
     # shellcheck disable=SC2154
     # defined via initcpio's parse_cmdline()
     if [ "${verify}" = "y" ]; then
-        if [ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sfs.sig" ]; then
-            sigfile="airootfs.sfs.sig"
-        elif [ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.erofs.sig" ]; then
-            sigfile="airootfs.erofs.sig"
-        fi
+        [ -f "${airootfs}.sig" ] && sigfile="$(basename "${airootfs}.sig")"
         if [ -n "${sigfile}" ]; then
             msg ":: Signature verification requested, please wait..."
             if _verify_signature "${sigfile}"; then
@@ -232,10 +241,11 @@ archiso_mount_handler() {
     mkdir -p "/run/archiso/cowspace/${cow_directory}"
     chmod 0700 "/run/archiso/cowspace/${cow_directory}"
 
-    if [ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sfs" ]; then
-        fs_img="/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sfs"
-    elif [ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.erofs" ]; then
-        fs_img="/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.erofs"
+    if [ -f "${airootfs}" ]; then 
+	fs_img="${airootfs}"
+    # shellcheck disable=SC2154
+    elif [ -f "${root}" ]; then
+	fs_img="${root}"
     else
         echo "ERROR: no root file system image found"
         launch_interactive_shell
@@ -248,8 +258,8 @@ archiso_mount_handler() {
     fi
 
     if [ "${copytoram}" = "y" ]; then
-        umount -d /run/archiso/bootmnt
-        rmdir /run/archiso/bootmnt
+        umount -d "${bootmnt}"
+        rmdir "${bootmnt}"
     fi
 }
 
