@@ -98,7 +98,7 @@ _mnt_dev() {
 
     msg ":: Mounting '${dev}' to '${mnt}'"
 
-    while ! poll_device "${dev}" 30; do
+    while ! [ -d "${dev}" ] && ! poll_device "${dev}" 30; do
         echo "ERROR: '${dev}' device did not show up after 30 seconds..."
         echo "   Falling back to interactive prompt"
         echo "   You can try to fix the problem manually, log out when you are finished"
