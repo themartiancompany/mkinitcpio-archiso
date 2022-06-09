@@ -85,7 +85,13 @@ _mnt_fs() {
         img="/run/archiso/copytoram/${img_fullname}"
         msg "done."
     fi
-    img_loopdev="$(losetup --find --show --read-only -- "${img}")"
+
+    # shellcheck disable=SC2154
+    if [ -e "${root}" ]; then
+	img_loopdev="${root}"
+    else
+        img_loopdev="$(losetup --find --show --read-only -- "${img}")"
+    fi
     _mnt_dev "${img_loopdev}" "${mnt}" "-r" "defaults"
 }
 
