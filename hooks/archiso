@@ -146,7 +146,7 @@ _archisodevice() {
         archisodevice="/run/cryptdev"
         bootmnt_opts="bind"
     else
-        archisodevice="/dev/disk/by-label/${archisolabel}"
+	archisodevice="/dev/disk/by-uuid/${archisouuid}"
         bootmnt_opts="defaults"
     fi
 }
