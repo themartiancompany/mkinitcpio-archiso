@@ -171,8 +171,8 @@ run_hook() {
         cow_persistent="N"
     fi
 
-    # shellcheck disable=SC2154
     [ -z "${cow_flags}" ] && cow_flags="defaults"
+    # shellcheck disable=SC2154
     [ -z "${cow_directory}" ] && cow_directory="persistent_${archisolabel}/${arch}"
     [ -z "${cow_chunksize}" ] && cow_chunksize="8"
 
