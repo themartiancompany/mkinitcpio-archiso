@@ -1,4 +1,5 @@
 #!/bin/ash
+# shellcheck shell=dash
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -130,6 +131,31 @@ _verify_checksum() {
     return "${_status}"
 }
 
+_get_ext_sig() {
+    local sigdev sigfs sigpath
+    local sigfile="/crypto_sigfile.bin"
+    IFS=: read sigdev sigfs sigpath <<EOF
+$sigdevice
+EOF
+    _mnt_dev "${sigdev}" "/sigdev" "-r"
+    dd if="/sigdev/${sigpath}" of="${sigfile}"
+    umount "/sigdev"
+}
+
+_compare_signatures() {
+    local iso_sig="${1}"
+    local ext_sig="${2}"
+    local iso_sig_sha ext_sig_sha
+    iso_sig_sha=$(sha512sum "${iso_sig}")
+    ext_sig_sha=$(sha512sum "${ext_sig}")
+    if [ "${ext_sig_sha%% *}" != "${iso_sig_sha%% *}" ]; then
+        err "Signatures on devices are different."
+        return 1
+    else
+        msg "Signatures match, continue booting."
+    fi
+}
+
 _verify_signature() {
     local _status
     local sigfile="${1}"
@@ -224,6 +250,12 @@ archiso_mount_handler() {
         [ -f "${airootfs}.sig" ] && sigfile="$(basename "${airootfs}.sig")"
         if [ -n "${sigfile}" ]; then
             msg ":: Signature verification requested, please wait..."
+	    if [ -n "${sigdevice}" ]; then
+	        _get_ext_sig
+		_compare_signatures "${airootfs}.sig" "/crypto_sigfile.bin"
+		rm "/crypto_sigfile.bin"
+	    fi
+
             if _verify_signature "${sigfile}"; then
                 msg "Signature is OK, continue booting."
             else
