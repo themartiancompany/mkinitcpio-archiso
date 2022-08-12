@@ -132,9 +132,9 @@ _verify_checksum() {
 }
 
 _get_ext_sig() {
-    #shellcheck disable=SC2162
     local sigdev sigfs sigpath
     local sigfile="/crypto_sigfile.bin"
+    #shellcheck disable=SC2162
     IFS=: read sigdev sigfs sigpath <<EOF
 $sigdevice
 EOF
