@@ -24,3 +24,4 @@ Mkinitcpio-archiso Authors
 * nl6720 <nl6720@gmail.com>
 * Øyvind Heggstad <heggstad@gmail.com>
 * Pellegrino Prevete <pellegrinoprevete@gmail.com>
+* Truocolo <truocolo@aol.com>
